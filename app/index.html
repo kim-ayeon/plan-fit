@@ -238,6 +238,8 @@ select:focus{outline:none;border-color:var(--blue)}
       <div id="genArea"></div>
     </div>
     <div class="btn-row"><button class="btn btn-primary" onclick="goStep(1)">졸업 진단 보기 →</button></div>
+    <div class="btn-row" style="margin-top:0"><button class="btn btn-ghost" style="font-size:13px" onclick="resetAll()">🗑 선택 전체 초기화</button></div>
+    <div class="note">ⓘ 졸업요건 수치는 학과 공개 교육과정을 바탕으로 한 <b>참고용</b>입니다. 실제 졸업 사정은 소속 학과·학사지원팀의 최종 확인을 따르세요. 선택 내역은 이 브라우저에 자동 저장됩니다.</div>
   </section>
 
   <!-- STEP 2 -->
@@ -284,6 +286,38 @@ let viewMode='card',sortMode='ga',searchTerm='',searching=false;
 let offDays=new Set();
 
 function deptData(){return D.depts_data[curDept]}
+
+/* ===== 자동 저장/불러오기 (브라우저 localStorage) ===== */
+const SKEY='planfit_beta_v4';
+function saveState(){
+  try{
+    localStorage.setItem(SKEY,JSON.stringify({
+      dept:curDept, taken:[...taken], off:[...offDays], job:curJob
+    }));
+  }catch(e){/* 저장 불가 환경 무시 */}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(SKEY);
+    if(!raw)return false;
+    const s=JSON.parse(raw);
+    if(s.dept&&D.depts_data[s.dept])curDept=s.dept;
+    if(Array.isArray(s.taken))taken=new Set(s.taken);
+    if(Array.isArray(s.off))offDays=new Set(s.off);
+    if(s.job&&D.jobs[s.job])curJob=s.job;
+    return true;
+  }catch(e){return false}
+}
+function resetAll(){
+  if(!confirm('선택한 과목·공강·직무를 모두 초기화할까요?'))return;
+  taken=new Set();offDays=new Set();curJob=null;
+  try{localStorage.removeItem(SKEY)}catch(e){}
+  document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('sel'));
+  document.querySelectorAll('.offday button').forEach(b=>b.classList.remove('on'));
+  document.getElementById('ttResult').innerHTML=`<div class="empty">위에서 목표 직무를 먼저 선택하세요.</div>`;
+  renderCourses();
+}
+
 function byName(a,b){return a.name.localeCompare(b.name,'ko')}
 function byCr(a,b){return b.credits-a.credits||byName(a,b)}
 function sorter(){return sortMode==='cr'?byCr:byName}
@@ -304,6 +338,7 @@ function onDeptChange(){
   taken=new Set();
   curJob=null;
   document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('sel'));
+  saveState();
   renderCourses();updateMeta();
 }
 function updateMeta(){
@@ -401,8 +436,7 @@ function tableHTML(list,pfx){
 function toggle(id){
   if(taken.has(id))taken.delete(id);else taken.add(id);
   document.querySelectorAll(`[data-id="${id}"]`).forEach(el=>el.classList.toggle('sel',taken.has(id)));
-  document.querySelectorAll(`.trow input`).forEach(()=>{});
-  // 표의 경우 행 강조 갱신
+  saveState();
   renderCourses();
 }
 function updateCnt(){
@@ -439,9 +473,10 @@ function renderDiag(){
   h+=pbar('총 졸업학점',totalCr,d.req.total,'var(--blue)')+pbar('전공 (최소인정)',majCr,d.req.majorMin,'var(--green)')+pbar('교양필수',genReqCr,d.req.genReq,'var(--yellow)')+pbar('균형교양',genBalCr,d.req.genBalanceMin,'var(--purple)');
   h+=`</div>`;
   if(missReq.length||missGenReq.length){
+    const openNames=new Set(D.sched.map(s=>s.n));
     h+=`<div class="card"><div class="card-h">🔴 미이수 필수 과목</div><div class="miss">`;
-    missReq.forEach(n=>h+=`<div class="miss-item"><div class="miss-dot"></div><div class="miss-name">${n}</div><div class="miss-tag">전공필수</div></div>`);
-    missGenReq.forEach(n=>h+=`<div class="miss-item"><div class="miss-dot"></div><div class="miss-name">${n}</div><div class="miss-tag">교양필수</div></div>`);
+    missReq.forEach(n=>{const op=openNames.has(n);h+=`<div class="miss-item"><div class="miss-dot"></div><div class="miss-name">${n}</div>${op?'<span class="miss-tag" style="background:var(--green-l);color:#065F46">26-1 개설</span>':'<span class="miss-tag" style="background:var(--g100);color:var(--g500)">이번학기 미개설</span>'}<span class="miss-tag">전공필수</span></div>`});
+    missGenReq.forEach(n=>{const op=openNames.has(n);h+=`<div class="miss-item"><div class="miss-dot"></div><div class="miss-name">${n}</div>${op?'<span class="miss-tag" style="background:var(--green-l);color:#065F46">26-1 개설</span>':'<span class="miss-tag" style="background:var(--g100);color:var(--g500)">이번학기 미개설</span>'}<span class="miss-tag">교양필수</span></div>`});
     h+=`</div></div>`;
   }
   if(balAreas.size<d.req.genBalanceAreas)h+=`<div class="card"><div class="card-h">💡 균형교양 영역</div><div class="status-desc" style="color:var(--g700);font-size:13px">현재 ${balAreas.size}개 영역. 최소 ${d.req.genBalanceAreas}개 영역(A/B/C)이 필요합니다.</div></div>`;
@@ -450,32 +485,38 @@ function renderDiag(){
 function pbar(name,cur,max,color){const pct=Math.min(100,Math.round(cur/max*100)),done=cur>=max;return `<div class="prog-item"><div class="prog-top"><span class="prog-name">${name}</span><span class="prog-val" style="color:${done?'var(--green)':'var(--g700)'}">${cur} / ${max}${done?' ✓':''}</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${done?'var(--green)':color}"></div></div></div>`}
 
 /* ===== timetable ===== */
-function selectJob(j){curJob=j;document.querySelectorAll('.job-card').forEach(c=>c.classList.toggle('sel',c.dataset.job===j));buildTimetable()}
-function toggleOff(d){if(offDays.has(d))offDays.delete(d);else offDays.add(d);document.querySelector(`[data-d="${d}"]`).classList.toggle('on',offDays.has(d));buildTimetable()}
-function kwScore(name,kw){let s=0;kw.forEach(k=>{if(name.includes(k))s++});return s}
+function selectJob(j){curJob=j;document.querySelectorAll('.job-card').forEach(c=>c.classList.toggle('sel',c.dataset.job===j));saveState();buildTimetable()}
+function toggleOff(d){if(offDays.has(d))offDays.delete(d);else offDays.add(d);document.querySelector(`[data-d="${d}"]`).classList.toggle('on',offDays.has(d));saveState();buildTimetable()}
+// core(핵심)=3점, rel(관련)=1점. 매칭된 키워드 목록도 반환
+function jobMatch(name,job){
+  const hitCore=[],hitRel=[];
+  (job.core||[]).forEach(k=>{if(name.includes(k))hitCore.push(k)});
+  (job.rel||[]).forEach(k=>{if(name.includes(k))hitRel.push(k)});
+  const score=hitCore.length*3+hitRel.length*1;
+  return {score, hits:[...hitCore,...hitRel]};
+}
 function cSlots(c){const k=[];c.t.forEach(([d,ps])=>ps.forEach(p=>k.push(d+'-'+p)));return k}
 
 function buildTimetable(){
   if(!curJob){document.getElementById('ttResult').innerHTML=`<div class="empty">위에서 목표 직무를 먼저 선택하세요.</div>`;return}
-  const kw=D.jobs[curJob].kw;
+  const job=D.jobs[curJob];
   const incGen=document.getElementById('incGen').checked;
   const takenNames=new Set([...taken].map(id=>id.slice(2)));
-  // 내 학과 전공 과목명 집합 (우선순위용)
   const myMajor=new Set(deptData().major.map(m=>m.name));
   const myReq=new Set(deptData().req.majorRequired);
 
   let cand=D.sched.filter(s=>s.t&&s.t.length&&!takenNames.has(s.n));
-  // 공강 요일 제외
   cand=cand.filter(s=>!s.t.some(([day])=>offDays.has(day)));
   cand=cand.map(s=>{
-    let score=kwScore(s.n,kw)*28;
+    const m=jobMatch(s.n,job);
+    let score=m.score*16;
     if(s.k==='major'&&myMajor.has(s.n))score+=55;
     else if(s.k==='major')score-=35;
     if(s.i==='전공필수')score+=18;
     if(s.i==='교양필수')score+=22;
     if(s.k==='gen'){if(!incGen)score-=999;else score+=4}
     if(myReq.has(s.n))score+=60;
-    return {...s,score,_gen:s.k==='gen'};
+    return {...s,score,_gen:s.k==='gen',_hits:m.hits};
   }).filter(s=>s.score>-100).sort((a,b)=>b.score-a.score);
 
   const occ=new Set(),placed=[],used=new Set();let cr=0;
@@ -487,7 +528,73 @@ function buildTimetable(){
     cSlots(c).forEach(k=>occ.add(k));used.add(c.n);placed.push(c);cr+=c.c;
   }
   renderTT(placed,cr,cand,used);
+  window._placed=placed; // 이미지 저장용
 }
+
+/* 시간표를 SVG로 그려 PNG 이미지로 저장 */
+function saveTimetableImage(){
+  const placed=window._placed||[];
+  if(!placed.length){alert('먼저 시간표를 생성하세요.');return}
+  const activeDays=DAYS.filter(d=>!offDays.has(d));
+  const cols=activeDays.length;
+  let maxP=6;placed.forEach(c=>c.t.forEach(([d,ps])=>ps.forEach(p=>{if(p>maxP)maxP=p})));maxP=Math.min(maxP,12);
+  const W=80, H=44, LW=44, TH=40, pad=16, titleH=40;
+  const svgW=LW+cols*W+pad*2;
+  const svgH=titleH+TH+maxP*H+pad*2;
+  const dayIdx={};activeDays.forEach((d,i)=>dayIdx[d]=i);
+  let r=`<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">`;
+  r+=`<rect width="${svgW}" height="${svgH}" fill="#ffffff"/>`;
+  r+=`<text x="${pad}" y="${pad+22}" font-family="sans-serif" font-size="18" font-weight="700" fill="#0F172A">PlanFit · ${curDept} ${curJob} 시간표</text>`;
+  const ox=pad, oy=pad+titleH;
+  // 요일 헤더
+  activeDays.forEach((d,i)=>{
+    r+=`<rect x="${ox+LW+i*W}" y="${oy}" width="${W}" height="${TH}" fill="#F8FAFC" stroke="#E2E8F0"/>`;
+    r+=`<text x="${ox+LW+i*W+W/2}" y="${oy+TH/2+5}" font-family="sans-serif" font-size="13" font-weight="700" fill="#64748B" text-anchor="middle">${DAY_KR[d]}</text>`;
+  });
+  // 교시 셀 그리드
+  for(let p=1;p<=maxP;p++){
+    const y=oy+TH+(p-1)*H;
+    r+=`<rect x="${ox}" y="${y}" width="${LW}" height="${H}" fill="#F8FAFC" stroke="#E2E8F0"/>`;
+    r+=`<text x="${ox+LW/2}" y="${y+18}" font-family="sans-serif" font-size="12" font-weight="600" fill="#94A3B8" text-anchor="middle">${p}</text>`;
+    r+=`<text x="${ox+LW/2}" y="${y+32}" font-family="sans-serif" font-size="8" fill="#CBD5E1" text-anchor="middle">${PTIME[p-1]||''}</text>`;
+    activeDays.forEach((d,i)=>{r+=`<rect x="${ox+LW+i*W}" y="${y}" width="${W}" height="${H}" fill="#ffffff" stroke="#E2E8F0"/>`});
+  }
+  // 과목 블록
+  placed.forEach((c,ci)=>{
+    const color=COLORS[ci%COLORS.length];
+    c.t.forEach(([day,ps])=>{
+      if(!(day in dayIdx))return;
+      const sorted=[...ps].sort((a,b)=>a-b);let start=sorted[0],prev=sorted[0];const runs=[];
+      for(let i=1;i<sorted.length;i++){if(sorted[i]===prev+1)prev=sorted[i];else{runs.push([start,prev]);start=sorted[i];prev=sorted[i]}}
+      runs.push([start,prev]);
+      runs.forEach(([s,e])=>{
+        const x=ox+LW+dayIdx[day]*W+2, y=oy+TH+(s-1)*H+2, w=W-4, hh=(e-s+1)*H-4;
+        r+=`<rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="4" fill="${color}"/>`;
+        r+=`<text x="${x+5}" y="${y+15}" font-family="sans-serif" font-size="10" font-weight="700" fill="#ffffff">${esc(c.n.slice(0,7))}</text>`;
+        if(c.r)r+=`<text x="${x+5}" y="${y+28}" font-family="sans-serif" font-size="8" fill="#ffffff" opacity="0.85">${esc(c.r)}</text>`;
+      });
+    });
+  });
+  r+=`</svg>`;
+  // SVG → PNG
+  const blob=new Blob([r],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const img=new Image();
+  img.onload=function(){
+    const sc=2; // 고해상도
+    const cv=document.createElement('canvas');cv.width=svgW*sc;cv.height=svgH*sc;
+    const ctx=cv.getContext('2d');ctx.scale(sc,sc);ctx.drawImage(img,0,0);
+    URL.revokeObjectURL(url);
+    cv.toBlob(function(b){
+      const a=document.createElement('a');a.href=URL.createObjectURL(b);
+      a.download=`플랜핏_${curDept}_시간표.png`;a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    });
+  };
+  img.onerror=function(){alert('이미지 생성에 실패했습니다. 브라우저를 최신 버전으로 시도해 주세요.');URL.revokeObjectURL(url)};
+  img.src=url;
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 const COLORS=['#2563EB','#10B981','#F59E0B','#8B5CF6','#EC4899','#06B6D4','#EF4444','#14B8A6','#6366F1'];
 function renderTT(placed,cr,cand,used){
   placed.forEach((c,i)=>c._color=COLORS[i%COLORS.length]);
@@ -522,6 +629,10 @@ function renderTT(placed,cr,cand,used){
   }
   h+=`</tbody></table></div><div class="legend"><span><i style="background:var(--blue)"></i>전공</span><span><i style="background:var(--purple)"></i>교양</span>${offDays.size?'<span><i style="background:var(--g200)"></i>공강</span>':''}</div></div>`;
 
+  // 시간표 이미지 저장 버튼 (격자 + 범례를 감싸는 영역)
+  h=`<div id="ttCapture" style="background:var(--white);padding:2px">`+h+`</div>`;
+  h+=`<div class="btn-row" style="margin-bottom:4px"><button class="btn btn-ghost" style="font-size:14px" onclick="saveTimetableImage()">🖼 시간표 이미지로 저장</button></div>`;
+
   // list
   h+=`<div class="card"><div class="card-h">📋 배치된 과목 <span class="cnt">적합도순</span></div><div class="rec-list">`;
   if(!placed.length)h+=`<div class="empty">조건에 맞는 강좌가 없습니다. 공강을 줄이거나 교양 포함을 켜보세요.</div>`;
@@ -529,7 +640,13 @@ function renderTT(placed,cr,cand,used){
     const tag=c._gen?`<span class="rec-tag tag-gen">교양</span>`:`<span class="rec-tag tag-major">전공</span>`;
     const full=c.f?`<span class="rec-tag tag-full">마감</span>`:'';
     const tstr=c.t.map(([d,ps])=>DAY_KR[d]+ps.join('')).join(' ');
-    h+=`<div class="rec-item"><div class="rec-rank" style="background:${c._color}">${i+1}</div><div class="rec-info"><div class="rec-name">${c.n}${tag}${full}</div><div class="rec-meta">${c.i} · ${c.c}학점 · ${tstr}${c.r?' · '+c.r:''}${c.cp?' ('+c.cp+')':''}</div></div><div class="rec-score"><div class="rec-score-num" style="color:${c._color}">${Math.min(99,c.score)}%</div></div></div>`;
+    // 추천 이유: 매칭 키워드 / 졸업필수 / 학과 전공
+    let why='';
+    if(deptData().req.majorRequired.includes(c.n))why=`<span style="color:var(--red);font-weight:600">졸업필수</span>`;
+    else if(c._hits&&c._hits.length)why=`${curJob} 키워드: ${c._hits.slice(0,3).join(', ')}`;
+    else if(!c._gen)why=`${curDept} 전공`;
+    else why=`교양 추천`;
+    h+=`<div class="rec-item"><div class="rec-rank" style="background:${c._color}">${i+1}</div><div class="rec-info"><div class="rec-name">${c.n}${tag}${full}</div><div class="rec-meta">${c.i} · ${c.c}학점 · ${tstr}${c.r?' · '+c.r:''}${c.cp?' ('+c.cp+')':''}</div><div class="rec-meta" style="color:var(--blue)">↳ ${why}</div></div><div class="rec-score"><div class="rec-score-num" style="color:${c._color}">${Math.min(99,c.score)}%</div></div></div>`;
   });
   h+=`</div></div>`;
   // plan B
@@ -547,12 +664,18 @@ function fillDemo(){
   d.req.majorRequired.slice(0,3).forEach(n=>taken.add('M_'+n));
   d.major.filter(m=>m.year<=2).slice(0,4).forEach(m=>taken.add('M_'+m.name));
   ['비판적사고와소통','한국어쓰기와발표','대학생활과미래설계','SW와문제해결'].forEach(n=>{if(D.gen.find(g=>g.name===n))taken.add('G_'+n)});
+  saveState();
   renderCourses();
   alert('데모 데이터 입력 완료!\n"졸업 진단 보기"를 눌러보세요.');
 }
 
 /* init */
-initSelects();updateMeta();renderCourses();
+loadState();                       // 저장된 선택 복원
+initSelects();
+// 복원된 공강/직무를 UI에 반영
+offDays.forEach(d=>{const b=document.querySelector(`[data-d="${d}"]`);if(b)b.classList.add('on')});
+if(curJob){const jc=document.querySelector(`[data-job="${curJob}"]`);if(jc)jc.classList.add('sel')}
+updateMeta();renderCourses();
 </script>
 </body>
 </html>
