@@ -16,7 +16,6 @@
   --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;
   --g400:#94A3B8;--g500:#64748B;--g700:#334155;--g900:#0F172A;--white:#fff;
   --r-sm:6px;--r-md:10px;--r-lg:16px;
-  --sh-sm:0 1px 3px rgba(0,0,0,.08);--sh-md:0 4px 16px rgba(0,0,0,.08);
 }
 body{font-family:'Noto Sans KR',sans-serif;background:var(--g50);color:var(--g900);line-height:1.6;-webkit-font-smoothing:antialiased}
 .wrap{max-width:760px;margin:0 auto;padding:0 16px}
@@ -33,13 +32,11 @@ header{background:var(--white);border-bottom:1px solid var(--g200);position:stic
 
 .steps{display:flex;gap:8px;padding:20px 0 4px}
 .step{flex:1;text-align:center;font-size:12px;color:var(--g400);position:relative;padding-bottom:12px;cursor:pointer}
-.step.active{color:var(--blue);font-weight:700}
-.step.done{color:var(--green)}
+.step.active{color:var(--blue);font-weight:700}.step.done{color:var(--green)}
 .step::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:2px;background:var(--g200)}
 .step.active::after{background:var(--blue)}.step.done::after{background:var(--green)}
 .step-num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--g200);color:var(--g500);align-items:center;justify-content:center;font-weight:700;font-size:12px;margin-bottom:4px}
-.step.active .step-num{background:var(--blue);color:#fff}
-.step.done .step-num{background:var(--green);color:#fff}
+.step.active .step-num{background:var(--blue);color:#fff}.step.done .step-num{background:var(--green);color:#fff}
 
 .panel{display:none;padding:24px 0 60px;animation:fade .4s ease}
 .panel.active{display:block}
@@ -48,7 +45,7 @@ h2.title{font-family:'Manrope','Noto Sans KR';font-size:24px;font-weight:800;let
 .sub{font-size:14px;color:var(--g500);margin-bottom:20px;line-height:1.7}
 
 .card{background:var(--white);border:1px solid var(--g200);border-radius:var(--r-lg);padding:20px;margin-bottom:16px}
-.card-h{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.card-h{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
 .card-h .cnt{font-size:12px;font-weight:600;color:var(--blue);background:var(--blue-l);padding:3px 10px;border-radius:20px}
 
 .toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
@@ -60,6 +57,8 @@ h2.title{font-family:'Manrope','Noto Sans KR';font-size:24px;font-weight:800;let
 .seg button{padding:10px 14px;border:none;background:var(--white);font-size:13px;font-family:'Noto Sans KR';color:var(--g500);cursor:pointer;font-weight:600}
 .seg button.on{background:var(--blue);color:#fff}
 .seg button:not(:last-child){border-right:1px solid var(--g200)}
+select{padding:10px 14px;border:1px solid var(--g200);border-radius:var(--r-md);font-size:14px;font-family:'Noto Sans KR';background:var(--white);font-weight:600;color:var(--g700)}
+select:focus{outline:none;border-color:var(--blue)}
 
 .chip-grid{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font-size:13px;padding:7px 12px;border-radius:20px;border:1px solid var(--g200);background:var(--white);color:var(--g700);cursor:pointer;transition:all .12s;user-select:none;font-family:'Noto Sans KR'}
@@ -70,8 +69,6 @@ h2.title{font-family:'Manrope','Noto Sans KR';font-size:24px;font-weight:800;let
 .cat-label{font-size:12px;font-weight:700;color:var(--g500);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.04em}
 .cat-label:first-child{margin-top:0}
 .no-match{font-size:13px;color:var(--g400);padding:8px 0}
-
-label.fl{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-bottom:6px}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:'Noto Sans KR';font-size:15px;font-weight:600;padding:13px 26px;border-radius:var(--r-md);border:none;cursor:pointer;transition:all .2s}
 .btn-primary{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3)}
@@ -100,19 +97,10 @@ label.fl{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-b
 .miss-name{flex:1;font-weight:500}
 .miss-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--red-l);color:var(--red)}
 
-.tt-course{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--g50);border:1px solid var(--g100);border-radius:var(--r-md);margin-bottom:8px}
-.tt-rank{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
-.tt-rank.g{background:var(--purple)}
-.tt-info{flex:1;min-width:0}
-.tt-name{font-weight:600;font-size:14px}
-.tt-meta{font-size:12px;color:var(--g400)}
-.tt-tag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;margin-left:6px}
-.tag-major{background:var(--blue-l);color:var(--blue-d)}
-.tag-gen{background:#F3E8FF;color:#6B21A8}
-.tt-score{text-align:right;flex-shrink:0}
-.tt-score-num{font-weight:800;font-size:16px;color:var(--blue);font-family:'Manrope'}
-.tt-score-bar{width:60px;height:5px;background:var(--g200);border-radius:3px;overflow:hidden;margin-top:4px}
-.tt-score-fill{height:100%;background:var(--blue);border-radius:3px}
+.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.metric{background:var(--g50);border-radius:var(--r-md);padding:14px;text-align:center}
+.metric-num{font-family:'Manrope';font-size:22px;font-weight:800;letter-spacing:-.5px}
+.metric-label{font-size:11px;color:var(--g500);margin-top:2px}
 
 .job-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .job-card{border:1px solid var(--g200);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;transition:all .15s;background:#fff}
@@ -123,10 +111,33 @@ label.fl{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-b
 .job-name{font-size:14px;font-weight:700;color:var(--g900)}
 .job-desc{font-size:11px;color:var(--g500);margin-top:2px;line-height:1.4}
 
-.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.metric{background:var(--g50);border-radius:var(--r-md);padding:14px;text-align:center}
-.metric-num{font-family:'Manrope';font-size:22px;font-weight:800;letter-spacing:-.5px}
-.metric-label{font-size:11px;color:var(--g500);margin-top:2px}
+/* ===== TIMETABLE GRID ===== */
+.tt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.timetable{width:100%;border-collapse:collapse;min-width:480px;table-layout:fixed}
+.timetable th,.timetable td{border:1px solid var(--g200);padding:0}
+.timetable thead th{background:var(--g50);font-size:12px;font-weight:700;color:var(--g500);height:34px;text-align:center}
+.timetable .th-time{width:38px}
+.timetable .td-time{width:38px;background:var(--g50);text-align:center;font-size:11px;font-weight:600;color:var(--g400);vertical-align:top;padding-top:3px;height:38px}
+.timetable td.slot{position:relative;height:38px;vertical-align:top}
+.cell-course{position:absolute;left:1px;right:1px;border-radius:5px;padding:4px 5px;overflow:hidden;color:#fff;font-size:10px;line-height:1.25;cursor:default;z-index:2}
+.cell-course .cc-name{font-weight:700;font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell-course .cc-room{opacity:.85;font-size:9px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--g500)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+.rec-list{margin-top:4px}
+.rec-item{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--g50);border:1px solid var(--g100);border-radius:var(--r-md);margin-bottom:8px}
+.rec-rank{width:24px;height:24px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.rec-info{flex:1;min-width:0}
+.rec-name{font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rec-meta{font-size:12px;color:var(--g400)}
+.rec-tag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px}
+.tag-major{background:var(--blue-l);color:var(--blue-d)}
+.tag-gen{background:#F3E8FF;color:#6B21A8}
+.tag-full{background:var(--red-l);color:var(--red)}
+.rec-score{text-align:right;flex-shrink:0}
+.rec-score-num{font-weight:800;font-size:15px;font-family:'Manrope'}
 
 .empty{text-align:center;color:var(--g400);font-size:14px;padding:30px 0}
 .note{font-size:12px;color:var(--g400);margin-top:16px;padding:12px 16px;background:var(--g100);border-radius:var(--r-md);line-height:1.6}
@@ -148,11 +159,7 @@ label.fl{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-b
 <header>
   <div class="wrap hd">
     <a href="../index.html" class="logo">
-      <div class="logo-sym" aria-hidden="true">
-        <span class="b"></span><span class="b"></span><span></span>
-        <span></span><span class="b"></span><span class="b"></span>
-        <span class="g"></span><span class="g"></span><span class="g"></span>
-      </div>
+      <div class="logo-sym" aria-hidden="true"><span class="b"></span><span class="b"></span><span></span><span></span><span class="b"></span><span class="b"></span><span class="g"></span><span class="g"></span><span class="g"></span></div>
       <span class="logo-txt">Plan<em>Fit</em></span>
     </a>
     <span class="hd-tag">베타 · 행정학과</span>
@@ -166,278 +173,279 @@ label.fl{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-b
     <div class="step" id="s2" onclick="goStep(2)"><div class="step-num">3</div><span class="lbl">시간표 추천</span></div>
   </div>
 
+  <!-- STEP 1 -->
   <section class="panel active" id="p0">
     <h2 class="title">지금까지 들은 과목을 선택하세요</h2>
-    <p class="sub">2024 행정학과 교육과정 + 공주대 교양 편성 기준입니다. 검색하거나 탭으로 선택하면 졸업요건을 자동 계산합니다.
+    <p class="sub">2024 행정학과 교육과정 + 공주대 교양 기준으로 졸업요건을 계산합니다.
       <button class="demo-fill" onclick="fillDemo()">데모 데이터 자동 입력 →</button>
     </p>
-
     <div class="toolbar">
-      <div class="search-box">
-        <span class="si">🔍</span>
-        <input type="text" id="searchInput" placeholder="과목명 검색 (예: 행정, 데이터, 영어)" oninput="onSearch()">
-      </div>
-      <div class="seg">
-        <button id="sortGa" class="on" onclick="setSort('ga')">가나다</button>
-        <button id="sortCr" onclick="setSort('cr')">학점순</button>
-      </div>
+      <div class="search-box"><span class="si">🔍</span><input type="text" id="searchInput" placeholder="과목명 검색 (예: 행정, 데이터, 영어)" oninput="onSearch()"></div>
+      <div class="seg"><button id="sortGa" class="on" onclick="setSort('ga')">가나다</button><button id="sortCr" onclick="setSort('cr')">학점순</button></div>
     </div>
-
-    <div class="card">
-      <div class="card-h">📚 전공 과목 <span class="cnt" id="majorCnt">0 선택</span></div>
-      <div id="majorChips"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-h">🎓 교양 과목 <span class="cnt" id="genCnt">0 선택</span></div>
-      <div id="genChips"></div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="goStep(1)">졸업 진단 보기 →</button>
-    </div>
+    <div class="card"><div class="card-h">📚 전공 과목 <span class="cnt" id="majorCnt">0 선택</span></div><div id="majorChips"></div></div>
+    <div class="card"><div class="card-h">🎓 교양 과목 <span class="cnt" id="genCnt">0 선택</span></div><div id="genChips"></div></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="goStep(1)">졸업 진단 보기 →</button></div>
   </section>
 
+  <!-- STEP 2 -->
   <section class="panel" id="p1">
     <h2 class="title">졸업 요건 진단 결과</h2>
     <p class="sub">행정학과 졸업 기준(총 130학점) 대비 현재 이수 상태를 자동 계산했습니다.</p>
     <div id="diagResult"></div>
-    <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goStep(0)">← 수정하기</button>
-      <button class="btn btn-primary" onclick="goStep(2)">시간표 추천 받기 →</button>
-    </div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(0)">← 수정하기</button><button class="btn btn-primary" onclick="goStep(2)">시간표 추천 받기 →</button></div>
   </section>
 
+  <!-- STEP 3 -->
   <section class="panel" id="p2">
     <h2 class="title">직무 맞춤 시간표 추천</h2>
-    <p class="sub">목표 직무를 선택하면 졸업요건과 직무 적합도를 동시에 고려해 전공·교양 과목을 추천합니다.</p>
+    <p class="sub">2026학년도 1학기 실제 개설강좌 기준입니다. 직무를 고르면 졸업요건과 직무 적합도를 반영해 시간이 겹치지 않는 시간표를 자동 완성합니다.</p>
 
     <div class="card">
       <div class="card-h">🎯 목표 직무 <span class="cnt">사람인 직무분류 기준</span></div>
       <div class="job-grid" id="jobGrid"></div>
     </div>
 
-    <label class="inc-toggle">
-      <input type="checkbox" id="incGen" checked onchange="renderRecommend()">
-      교양 과목도 추천에 포함
-    </label>
+    <div class="toolbar">
+      <select id="deptSel" onchange="buildTimetable()"></select>
+      <label class="inc-toggle" style="margin:0"><input type="checkbox" id="incGen" checked onchange="buildTimetable()">교양 포함</label>
+      <button class="btn btn-ghost" style="padding:10px 16px;font-size:13px" onclick="buildTimetable()">↻ 다시 생성</button>
+    </div>
 
-    <div id="recResult"></div>
-    <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goStep(1)">← 진단으로</button>
-    </div>
-    <div class="note">
-      ⓘ 직무 분류는 사람인·잡코리아 등 채용 플랫폼의 표준 직무 대분류를 기준으로 했고, 각 직무의 빈출 키워드를 과목명과 매칭합니다.
-      실제 서비스에서는 원티드·사람인 API로 실시간 채용공고 키워드를 자동 갱신합니다.
-    </div>
+    <div id="ttResult"><div class="empty">위에서 목표 직무를 먼저 선택하세요.</div></div>
+
+    <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(1)">← 진단으로</button></div>
+    <div class="note">ⓘ 2026-1학기 개설강좌 데이터를 사용합니다. 같은 과목에 여러 분반이 있으면 시간이 겹치지 않는 분반을 자동 선택합니다. 실제 서비스에서는 학사 API로 실시간 정원·폐강이 반영됩니다.</div>
   </section>
 </div>
 
 <script src="data.js"></script>
 <script>
-const D = window.PLANFIT_DATA;
-const taken = new Set();
-let curStep = 0, curJob = null;
-let sortMode = 'ga', searchTerm = '';
+const D=window.PLANFIT_DATA;
+// 압축된 시간표 키 복원 (n,s,i,c,k,d,t,f,r → 읽기 쉬운 형태, cr 추가)
+D.sched.forEach(s=>{ s.cr=s.c; });
+const taken=new Set();
+let curStep=0,curJob=null,sortMode='ga',searchTerm='';
+const DAY_KR={Mon:'월',Tue:'화',Wed:'수',Thu:'목',Fri:'금'};
+const DAYS=['Mon','Tue','Wed','Thu','Fri'];
+const PERIODS=[1,2,3,4,5,6,7,8,9];  // 1~9교시 표시
+const PERIOD_TIME=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 
-function byName(a,b){ return a.name.localeCompare(b.name,'ko'); }
-function byCredit(a,b){ return b.credits - a.credits || byName(a,b); }
-function sorter(){ return sortMode==='cr'?byCredit:byName; }
-function matchSearch(name){ return !searchTerm || name.toLowerCase().includes(searchTerm); }
+function byName(a,b){return a.name.localeCompare(b.name,'ko')}
+function byCredit(a,b){return b.credits-a.credits||byName(a,b)}
+function sorter(){return sortMode==='cr'?byCredit:byName}
+function matchSearch(n){return !searchTerm||n.toLowerCase().includes(searchTerm)}
 
 function goStep(n){
   curStep=n;
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
-  for(let i=0;i<3;i++){const s=document.getElementById('s'+i);s.classList.toggle('active',i===n);s.classList.toggle('done',i<n);}
+  for(let i=0;i<3;i++){const s=document.getElementById('s'+i);s.classList.toggle('active',i===n);s.classList.toggle('done',i<n)}
   window.scrollTo({top:0,behavior:'smooth'});
-  if(n===1) renderDiagnosis();
-  if(n===2) renderRecommend();
+  if(n===1)renderDiagnosis();
+  if(n===2&&curJob)buildTimetable();
 }
+function setSort(m){sortMode=m;document.getElementById('sortGa').classList.toggle('on',m==='ga');document.getElementById('sortCr').classList.toggle('on',m==='cr');renderMajorChips();renderGenChips()}
+function onSearch(){searchTerm=document.getElementById('searchInput').value.trim().toLowerCase();renderMajorChips();renderGenChips()}
 
-function setSort(m){
-  sortMode=m;
-  document.getElementById('sortGa').classList.toggle('on',m==='ga');
-  document.getElementById('sortCr').classList.toggle('on',m==='cr');
-  renderMajorChips(); renderGenChips();
-}
-function onSearch(){
-  searchTerm=document.getElementById('searchInput').value.trim().toLowerCase();
-  renderMajorChips(); renderGenChips();
-}
-
+/* STEP 1 */
 function renderMajorChips(){
-  const cats=['전공기초','전공핵심','전공심화'];
-  let html='', any=false;
+  const cats=['전공기초','전공핵심','전공심화'];let html='',any=false;
   cats.forEach(c=>{
-    const list=D.major.filter(m=>m.category===c && matchSearch(m.name)).sort(sorter());
-    if(!list.length) return;
-    any=true;
+    const list=D.major.filter(m=>m.category===c&&matchSearch(m.name)).sort(sorter());
+    if(!list.length)return;any=true;
     html+=`<div class="cat-label">${c}</div><div class="chip-grid">`;
-    list.forEach(m=>{
-      const id='M_'+m.name, sel=taken.has(id)?' sel':'', rq=m.required?' req':'';
-      html+=`<button class="chip${rq}${sel}" data-id="${id}" onclick="toggle('${id}')">${m.required?'★ ':''}${m.name}<span class="cr">${m.credits}</span></button>`;
-    });
+    list.forEach(m=>{const id='M_'+m.name,sel=taken.has(id)?' sel':'',rq=m.required?' req':'';html+=`<button class="chip${rq}${sel}" data-id="${id}" onclick="toggle('${id}')">${m.required?'★ ':''}${m.name}<span class="cr">${m.credits}</span></button>`});
     html+=`</div>`;
   });
-  if(!any) html=`<div class="no-match">검색 결과가 없습니다.</div>`;
-  document.getElementById('majorChips').innerHTML=html;
-  updateCnt();
+  if(!any)html=`<div class="no-match">검색 결과가 없습니다.</div>`;
+  document.getElementById('majorChips').innerHTML=html;updateCnt();
 }
 function renderGenChips(){
-  const req=D.gen.filter(g=>g.category==='교양필수' && matchSearch(g.name)).sort(sorter());
-  const sel=D.gen.filter(g=>g.category==='교양선택' && matchSearch(g.name)).sort(sorter());
-  let html='', any=false;
-  if(req.length){
-    any=true;
-    html+=`<div class="cat-label">교양필수</div><div class="chip-grid">`;
-    req.forEach(g=>{const id='G_'+g.name,s=taken.has(id)?' sel':'';html+=`<button class="chip req${s}" data-id="${id}" onclick="toggle('${id}')">${g.name}<span class="cr">${g.credits}</span></button>`;});
-    html+=`</div>`;
-  }
-  if(sel.length){
-    any=true;
-    html+=`<div class="cat-label">균형교양 (선택)</div><div class="chip-grid">`;
-    sel.forEach(g=>{const id='G_'+g.name,s=taken.has(id)?' sel':'',a=g.balance?`[${g.balance}] `:'';html+=`<button class="chip${s}" data-id="${id}" onclick="toggle('${id}')">${a}${g.name}<span class="cr">${g.credits}</span></button>`;});
-    html+=`</div>`;
-  }
-  if(!any) html=`<div class="no-match">검색 결과가 없습니다.</div>`;
-  document.getElementById('genChips').innerHTML=html;
-  updateCnt();
+  const req=D.gen.filter(g=>g.category==='교양필수'&&matchSearch(g.name)).sort(sorter());
+  const sel=D.gen.filter(g=>g.category==='교양선택'&&matchSearch(g.name)).sort(sorter());
+  let html='',any=false;
+  if(req.length){any=true;html+=`<div class="cat-label">교양필수</div><div class="chip-grid">`;req.forEach(g=>{const id='G_'+g.name,s=taken.has(id)?' sel':'';html+=`<button class="chip req${s}" data-id="${id}" onclick="toggle('${id}')">${g.name}<span class="cr">${g.credits}</span></button>`});html+=`</div>`}
+  if(sel.length){any=true;html+=`<div class="cat-label">균형교양 (선택)</div><div class="chip-grid">`;sel.forEach(g=>{const id='G_'+g.name,s=taken.has(id)?' sel':'',a=g.balance?`[${g.balance}] `:'';html+=`<button class="chip${s}" data-id="${id}" onclick="toggle('${id}')">${a}${g.name}<span class="cr">${g.credits}</span></button>`});html+=`</div>`}
+  if(!any)html=`<div class="no-match">검색 결과가 없습니다.</div>`;
+  document.getElementById('genChips').innerHTML=html;updateCnt();
 }
-function toggle(id){
-  if(taken.has(id))taken.delete(id);else taken.add(id);
-  document.querySelectorAll(`[data-id="${id}"]`).forEach(el=>el.classList.toggle('sel',taken.has(id)));
-  updateCnt();
-}
-function updateCnt(){
-  let mc=0,gc=0;
-  taken.forEach(id=>{ if(id.startsWith('M_'))mc++; else gc++; });
-  document.getElementById('majorCnt').textContent=mc+' 선택';
-  document.getElementById('genCnt').textContent=gc+' 선택';
-}
+function toggle(id){if(taken.has(id))taken.delete(id);else taken.add(id);document.querySelectorAll(`[data-id="${id}"]`).forEach(el=>el.classList.toggle('sel',taken.has(id)));updateCnt()}
+function updateCnt(){let mc=0,gc=0;taken.forEach(id=>{if(id.startsWith('M_'))mc++;else gc++});document.getElementById('majorCnt').textContent=mc+' 선택';document.getElementById('genCnt').textContent=gc+' 선택'}
 
-function takenCourses(){
-  const res=[];
-  D.major.forEach(m=>{if(taken.has('M_'+m.name))res.push({...m,type:'major'});});
-  D.gen.forEach(g=>{if(taken.has('G_'+g.name))res.push({...g,type:'gen'});});
-  return res;
-}
+function takenCourses(){const res=[];D.major.forEach(m=>{if(taken.has('M_'+m.name))res.push({...m,type:'major'})});D.gen.forEach(g=>{if(taken.has('G_'+g.name))res.push({...g,type:'gen'})});return res}
 const sumCr=l=>l.reduce((a,c)=>a+c.credits,0);
 
+/* STEP 2 */
 function renderDiagnosis(){
   const t=takenCourses();
-  const maj=t.filter(c=>c.type==='major'), gen=t.filter(c=>c.type==='gen');
-  const totalCr=sumCr(t), majCr=sumCr(maj);
+  const maj=t.filter(c=>c.type==='major'),gen=t.filter(c=>c.type==='gen');
+  const totalCr=sumCr(t),majCr=sumCr(maj);
   const genReqCr=sumCr(gen.filter(g=>g.category==='교양필수'));
   const genBal=gen.filter(g=>g.category==='교양선택'&&g.balance);
-  const genBalCr=sumCr(genBal), balAreas=new Set(genBal.map(g=>g.balance));
+  const genBalCr=sumCr(genBal),balAreas=new Set(genBal.map(g=>g.balance));
   const missReq=D.req.majorRequired.filter(n=>!taken.has('M_'+n));
   const genReqAll=D.gen.filter(g=>g.category==='교양필수');
   const missGenReq=genReqAll.filter(g=>!taken.has('G_'+g.name)).map(g=>g.name);
-
   const isOk=totalCr>=D.req.total&&!missReq.length&&!missGenReq.length;
   const isWarn=missReq.length||missGenReq.length||balAreas.size<D.req.genBalanceAreas;
-  const sc=isOk?'ok':(isWarn?'warn':'danger');
-  const icon=isOk?'✅':(isWarn?'⚠️':'📋');
+  const sc=isOk?'ok':(isWarn?'warn':'danger'),icon=isOk?'✅':(isWarn?'⚠️':'📋');
   const tit=isOk?'졸업 요건 충족!':'아직 채워야 할 요건이 있습니다';
   const left=D.req.total-totalCr;
   const dsc=isOk?'필수 과목과 학점을 모두 만족했습니다.':`총 ${left>0?left:0}학점 / 필수 ${missReq.length+missGenReq.length}과목이 남았습니다.`;
-
   let h=`<div class="status ${sc}"><div class="status-icon">${icon}</div><div><div class="status-title">${tit}</div><div class="status-desc">${dsc}</div></div></div>`;
-  h+=`<div class="metric-row">
-    <div class="metric"><div class="metric-num" style="color:var(--blue)">${totalCr}</div><div class="metric-label">총 이수 / ${D.req.total}</div></div>
-    <div class="metric"><div class="metric-num" style="color:var(--green)">${majCr}</div><div class="metric-label">전공 학점</div></div>
-    <div class="metric"><div class="metric-num" style="color:var(--yellow)">${genReqCr+genBalCr}</div><div class="metric-label">교양 학점</div></div></div>`;
+  h+=`<div class="metric-row"><div class="metric"><div class="metric-num" style="color:var(--blue)">${totalCr}</div><div class="metric-label">총 이수 / ${D.req.total}</div></div><div class="metric"><div class="metric-num" style="color:var(--green)">${majCr}</div><div class="metric-label">전공 학점</div></div><div class="metric"><div class="metric-num" style="color:var(--yellow)">${genReqCr+genBalCr}</div><div class="metric-label">교양 학점</div></div></div>`;
   h+=`<div class="card"><div class="card-h">📊 영역별 진행률</div>`;
-  h+=progBar('총 졸업학점',totalCr,D.req.total,'var(--blue)');
-  h+=progBar('전공 (최소인정)',majCr,D.req.majorMin,'var(--green)');
-  h+=progBar('교양필수',genReqCr,D.req.genReq,'var(--yellow)');
-  h+=progBar('균형교양',genBalCr,D.req.genBalanceMin,'var(--purple)');
-  h+=`</div>`;
-  if(missReq.length||missGenReq.length){
-    h+=`<div class="card"><div class="card-h">🔴 미이수 필수 과목</div><div class="miss">`;
-    missReq.forEach(n=>h+=`<div class="miss-item"><div class="miss-dot"></div><div class="miss-name">${n}</div><div class="miss-tag">전공필수</div></div>`);
-    missGenReq.forEach(n=>h+=`<div class="miss-item"><div class="miss-dot"></div><div class="miss-name">${n}</div><div class="miss-tag">교양필수</div></div>`);
-    h+=`</div></div>`;
-  }
-  if(balAreas.size<D.req.genBalanceAreas){
-    h+=`<div class="card"><div class="card-h">💡 균형교양 영역</div><div class="status-desc" style="color:var(--g700);font-size:13px">현재 ${balAreas.size}개 영역 (${[...balAreas].join(', ')||'없음'}). 최소 ${D.req.genBalanceAreas}개 영역 필요. A(인간·사회)/B(자연·기술)/C(외국어·예술) 중 부족분을 채우세요.</div></div>`;
-  }
+  h+=progBar('총 졸업학점',totalCr,D.req.total,'var(--blue)')+progBar('전공 (최소인정)',majCr,D.req.majorMin,'var(--green)')+progBar('교양필수',genReqCr,D.req.genReq,'var(--yellow)')+progBar('균형교양',genBalCr,D.req.genBalanceMin,'var(--purple)')+`</div>`;
+  if(missReq.length||missGenReq.length){h+=`<div class="card"><div class="card-h">🔴 미이수 필수 과목</div><div class="miss">`;missReq.forEach(n=>h+=`<div class="miss-item"><div class="miss-dot"></div><div class="miss-name">${n}</div><div class="miss-tag">전공필수</div></div>`);missGenReq.forEach(n=>h+=`<div class="miss-item"><div class="miss-dot"></div><div class="miss-name">${n}</div><div class="miss-tag">교양필수</div></div>`);h+=`</div></div>`}
+  if(balAreas.size<D.req.genBalanceAreas){h+=`<div class="card"><div class="card-h">💡 균형교양 영역</div><div class="status-desc" style="color:var(--g700);font-size:13px">현재 ${balAreas.size}개 영역 (${[...balAreas].join(', ')||'없음'}). 최소 ${D.req.genBalanceAreas}개 영역 필요.</div></div>`}
   document.getElementById('diagResult').innerHTML=h;
 }
-function progBar(name,cur,max,color){
-  const pct=Math.min(100,Math.round(cur/max*100)), done=cur>=max;
-  return `<div class="prog-item"><div class="prog-top"><span class="prog-name">${name}</span><span class="prog-val" style="color:${done?'var(--green)':'var(--g700)'}">${cur} / ${max}${done?' ✓':''}</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${done?'var(--green)':color}"></div></div></div>`;
-}
+function progBar(name,cur,max,color){const pct=Math.min(100,Math.round(cur/max*100)),done=cur>=max;return `<div class="prog-item"><div class="prog-top"><span class="prog-name">${name}</span><span class="prog-val" style="color:${done?'var(--green)':'var(--g700)'}">${cur} / ${max}${done?' ✓':''}</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${done?'var(--green)':color}"></div></div></div>`}
 
-function renderJobGrid(){
-  let h='';
-  Object.entries(D.jobs).forEach(([name,info])=>{
-    h+=`<div class="job-card" data-job="${name}" onclick="selectJob('${name}')">
-      <div class="job-name">${name}</div><div class="job-desc">${info.desc}</div></div>`;
-  });
-  document.getElementById('jobGrid').innerHTML=h;
-}
-function selectJob(j){
-  curJob=j;
-  document.querySelectorAll('.job-card').forEach(c=>c.classList.toggle('sel',c.dataset.job===j));
-  renderRecommend();
-}
-function kwScore(name,kw){let s=0;kw.forEach(k=>{if(name.includes(k))s++;});return s;}
+/* STEP 3 — JOBS */
+function renderJobGrid(){let h='';Object.entries(D.jobs).forEach(([name,info])=>{h+=`<div class="job-card" data-job="${name}" onclick="selectJob('${name}')"><div class="job-name">${name}</div><div class="job-desc">${info.desc}</div></div>`});document.getElementById('jobGrid').innerHTML=h}
+function initDeptSel(){const s=document.getElementById('deptSel');s.innerHTML=D.depts.map(d=>`<option value="${d}"${d==='행정학과'?' selected':''}>${d} 전공</option>`).join('')}
+function selectJob(j){curJob=j;document.querySelectorAll('.job-card').forEach(c=>c.classList.toggle('sel',c.dataset.job===j));buildTimetable()}
+function kwScore(name,kw){let s=0;kw.forEach(k=>{if(name.includes(k))s++});return s}
 
-function renderRecommend(){
-  if(!curJob){document.getElementById('recResult').innerHTML=`<div class="empty">위에서 목표 직무를 먼저 선택하세요.</div>`;return;}
+/* ===== TIMETABLE BUILDER (core) ===== */
+function slotKey(day,p){return day+'-'+p}
+function courseSlots(c){const ks=[];c.t.forEach(([day,ps])=>ps.forEach(p=>ks.push(slotKey(day,p))));return ks}
+function conflicts(c,occupied){return courseSlots(c).some(k=>occupied.has(k))}
+
+function buildTimetable(){
+  if(!curJob){document.getElementById('ttResult').innerHTML=`<div class="empty">위에서 목표 직무를 먼저 선택하세요.</div>`;return}
   const kw=D.jobs[curJob].kw;
   const incGen=document.getElementById('incGen').checked;
+  const dept=document.getElementById('deptSel').value;
+  const takenNames=new Set([...taken].map(id=>id.slice(2)));
 
-  let pool=D.major.filter(m=>!taken.has('M_'+m.name)).map(m=>{
-    let s=kwScore(m.name,kw)*30;
-    if(m.required)s+=50;
-    if(m.category==='전공기초')s+=12;
-    s+=Math.max(0,15-(m.year*3));
-    return {...m,type:'major',score:Math.min(99,s+18)};
-  });
-  if(incGen){
-    const genPool=D.gen.filter(g=>!taken.has('G_'+g.name)).map(g=>{
-      let s=kwScore(g.name,kw)*30;
-      if(g.category==='교양필수')s+=35;
-      return {...g,type:'gen',score:Math.min(96,s+10)};
-    }).filter(g=>g.score>=40);
-    pool=pool.concat(genPool);
-  }
-  pool.sort((a,b)=>b.score-a.score);
-  const top=pool.slice(0,6);
-  const missReq=D.req.majorRequired.filter(n=>!taken.has('M_'+n));
+  // 후보: 시간 정보 있고 아직 안 들은 강좌
+  let cand=D.sched.filter(s=>s.t&&s.t.length&&!takenNames.has(s.n));
+  // 점수 매기기
+  cand=cand.map(s=>{
+    let score=kwScore(s.n,kw)*30;
+    const isMajor=s.k==='major';
+    const isGen=s.k==='gen';
+    if(isMajor&&s.d===dept)score+=55;          // 내 학과 전공 우선
+    else if(isMajor)score-=40;                  // 타학과 전공은 감점
+    if(s.i==='전공필수')score+=20;
+    if(s.i==='교양필수')score+=25;
+    if(isGen&&!incGen)score-=999;               // 교양 제외 옵션
+    if(isGen)score+=5;
+    // 졸업 필수 행정 과목 강력 우선
+    if(D.req.majorRequired.includes(s.n))score+=60;
+    return {...s,score:score,_major:isMajor,_gen:isGen};
+  }).filter(s=>s.score>-100);
+  // 같은 과목명 중복 분반은 점수순 정렬 후 배치 단계에서 충돌 회피
+  cand.sort((a,b)=>b.score-a.score);
 
-  let h='';
-  if(missReq.length){
-    h+=`<div class="status warn"><div class="status-icon">⚡</div><div><div class="status-title">졸업필수 ${missReq.length}과목 우선</div><div class="status-desc">${missReq.join(', ')} — 미이수 시 졸업 불가</div></div></div>`;
+  // 그리디 배치: 점수 높은 순으로, 시간 안 겹치고 같은 과목명 중복 안되게
+  const occupied=new Set();
+  const placed=[];
+  const usedNames=new Set();
+  const targetCredits=15;  // 한 학기 목표
+  let creditSum=0;
+  for(const c of cand){
+    if(creditSum>=targetCredits+3)break;
+    if(usedNames.has(c.n))continue;            // 같은 과목 1개만
+    if(conflicts(c,occupied))continue;          // 시간 충돌 회피
+    if(c.score<20&&placed.length>=5)continue;   // 관련성 낮은 건 제한
+    courseSlots(c).forEach(k=>occupied.add(k));
+    usedNames.add(c.n);
+    placed.push(c);
+    creditSum+=c.cr;
   }
-  h+=`<div class="card"><div class="card-h">📅 ${curJob} 추천 과목 <span class="cnt">적합도순</span></div>`;
-  if(!top.length){h+=`<div class="empty">추천할 미이수 과목이 없습니다.</div>`;}
-  top.forEach((c,i)=>{
-    const isGen=c.type==='gen';
-    const tag=isGen?`<span class="tt-tag tag-gen">교양</span>`:`<span class="tt-tag tag-major">전공</span>`;
-    const meta=isGen?`${c.category}${c.balance?' · '+c.balance+'영역':''} · ${c.credits}학점`:`${c.category} · ${c.credits}학점 · ${c.year}학년 ${c.sem}학기`;
-    h+=`<div class="tt-course"><div class="tt-rank${isGen?' g':''}">${i+1}</div>
-      <div class="tt-info"><div class="tt-name">${c.required?'★ ':''}${c.name}${tag}</div><div class="tt-meta">${meta}</div></div>
-      <div class="tt-score"><div class="tt-score-num"${isGen?' style="color:var(--purple)"':''}>${c.score}%</div><div class="tt-score-bar"><div class="tt-score-fill" style="width:${c.score}%${isGen?';background:var(--purple)':''}"></div></div></div></div>`;
-  });
-  h+=`</div>`;
-  if(top.length>=2){
-    h+=`<div class="card"><div class="card-h">⚡ 플랜 B (1순위 마감 시 대안)</div><div class="status-desc" style="font-size:13px;color:var(--g700)">만약 <b>${top[0].name}</b>이 마감되면 → <b>${top[1].name}</b> (적합도 ${top[1].score}%)로 자동 대체. 졸업요건과 직무 적합도를 모두 유지합니다.</div></div>`;
-  }
-  document.getElementById('recResult').innerHTML=h;
+
+  renderTimetable(placed,creditSum,cand,usedNames);
 }
 
+const COLORS=['#2563EB','#10B981','#F59E0B','#8B5CF6','#EC4899','#06B6D4','#EF4444','#14B8A6','#6366F1'];
+function renderTimetable(placed,creditSum,allCand,usedNames){
+  // 색상 배정
+  placed.forEach((c,i)=>c._color=COLORS[i%COLORS.length]);
+
+  // 격자
+  let grid=`<div class="card"><div class="card-h">📅 ${curJob} 추천 시간표 <span class="cnt">총 ${creditSum}학점 · ${placed.length}과목</span></div><div class="tt-wrap"><table class="timetable"><thead><tr><th class="th-time"></th>`;
+  DAYS.forEach(d=>grid+=`<th>${DAY_KR[d]}</th>`);
+  grid+=`</tr></thead><tbody>`;
+
+  // 어떤 교시까지 표시할지 (최대 배치 교시+1)
+  let maxP=6;placed.forEach(c=>c.t.forEach(([d,ps])=>ps.forEach(p=>{if(p>maxP)maxP=p})));
+  maxP=Math.min(maxP,12);
+
+  // 셀별 배치 맵
+  const cellMap={};  // 'Mon-1' -> course (시작 교시만)
+  const spanMap={};  // 'Mon-1' -> rowspan
+  const coverSet=new Set(); // 병합으로 덮인 셀
+  placed.forEach(c=>{
+    c.t.forEach(([day,ps])=>{
+      const sorted=[...ps].sort((a,b)=>a-b);
+      // 연속 구간 분할
+      let start=sorted[0],prev=sorted[0];
+      const runs=[];
+      for(let i=1;i<sorted.length;i++){if(sorted[i]===prev+1){prev=sorted[i]}else{runs.push([start,prev]);start=sorted[i];prev=sorted[i]}}
+      runs.push([start,prev]);
+      runs.forEach(([s,e])=>{
+        cellMap[slotKey(day,s)]={c,span:e-s+1};
+        for(let p=s;p<=e;p++)if(p!==s)coverSet.add(slotKey(day,p));
+      });
+    });
+  });
+
+  for(let p=1;p<=maxP;p++){
+    grid+=`<tr><td class="td-time">${p}<br><span style="font-size:9px;font-weight:400">${PERIOD_TIME[p-1]||''}</span></td>`;
+    DAYS.forEach(day=>{
+      const key=slotKey(day,p);
+      if(coverSet.has(key))return; // 병합으로 덮임 → td 생략
+      const cell=cellMap[key];
+      if(cell){
+        const c=cell.c,h=cell.span*38-4;
+        grid+=`<td class="slot" rowspan="${cell.span}"><div class="cell-course" style="background:${c._color};height:${h}px"><span class="cc-name">${c.n}</span>${c.r?`<span class="cc-room">${c.r}</span>`:''}</div></td>`;
+      }else{
+        grid+=`<td class="slot"></td>`;
+      }
+    });
+    grid+=`</tr>`;
+  }
+  grid+=`</tbody></table></div>`;
+  grid+=`<div class="legend"><span><i style="background:var(--blue)"></i>전공</span><span><i style="background:var(--purple)"></i>교양</span><span style="color:var(--g400)">※ 색상은 과목 구분용</span></div></div>`;
+
+  // 배치된 과목 리스트
+  let list=`<div class="card"><div class="card-h">📋 배치된 과목 <span class="cnt">적합도순</span></div><div class="rec-list">`;
+  if(!placed.length)list+=`<div class="empty">조건에 맞는 강좌가 없습니다. 교양 포함을 켜거나 학과를 바꿔보세요.</div>`;
+  placed.forEach((c,i)=>{
+    const tag=c._gen?`<span class="rec-tag tag-gen">교양</span>`:`<span class="rec-tag tag-major">${c.d||'전공'}</span>`;
+    const full=c.f?`<span class="rec-tag tag-full">마감</span>`:'';
+    const tstr=c.t.map(([d,ps])=>DAY_KR[d]+ps.join('')).join(' ');
+    list+=`<div class="rec-item"><div class="rec-rank" style="background:${c._color}">${i+1}</div><div class="rec-info"><div class="rec-name">${D.req.majorRequired.includes(c.n)?'★ ':''}${c.n} ${tag}${full}</div><div class="rec-meta">${c.i} · ${c.cr}학점 · ${tstr}${c.r?' · '+c.r:''}</div></div><div class="rec-score"><div class="rec-score-num" style="color:${c._color}">${Math.min(99,c.score)}%</div></div></div>`;
+  });
+  list+=`</div></div>`;
+
+  // 플랜 B: 배치 안 된 고득점 대안
+  const placedNames=new Set(placed.map(c=>c.n));
+  const alt=allCand.filter(c=>!placedNames.has(c.n)&&c.score>=30);
+  const altUniq=[];const seen=new Set();
+  for(const a of alt){if(!seen.has(a.n)){seen.add(a.n);altUniq.push(a)}if(altUniq.length>=3)break}
+  let planB='';
+  if(altUniq.length){
+    planB=`<div class="card"><div class="card-h">⚡ 플랜 B 후보 (마감·충돌 시 대안)</div><div class="rec-list">`;
+    altUniq.forEach(c=>{const tstr=c.t.map(([d,ps])=>DAY_KR[d]+ps.join('')).join(' ');planB+=`<div class="rec-item"><div class="rec-rank" style="background:var(--g400)">B</div><div class="rec-info"><div class="rec-name">${c.n}</div><div class="rec-meta">${c.i} · ${c.cr}학점 · ${tstr}</div></div><div class="rec-score"><div class="rec-score-num" style="color:var(--g500)">${Math.min(99,c.score)}%</div></div></div>`});
+    planB+=`</div></div>`;
+  }
+
+  document.getElementById('ttResult').innerHTML=grid+list+planB;
+}
+
+/* demo */
 function fillDemo(){
   const demo=['행정학개론','정책학개론','재무행정론','인사행정론','행정과 사회','한국정부론','사회조사방법론','비판적사고와소통','한국어쓰기와발표','SW와문제해결','컴퓨팅적사고','대학생활과미래설계'];
-  taken.clear();
-  demo.forEach(n=>{ if(D.major.find(m=>m.name===n))taken.add('M_'+n); else taken.add('G_'+n); });
-  renderMajorChips(); renderGenChips();
+  taken.clear();demo.forEach(n=>{if(D.major.find(m=>m.name===n))taken.add('M_'+n);else taken.add('G_'+n)});
+  renderMajorChips();renderGenChips();
   alert('데모 데이터 입력 완료! (3학년 1학기 가정)\n"졸업 진단 보기"를 눌러보세요.');
 }
 
-renderMajorChips(); renderGenChips(); renderJobGrid();
+renderMajorChips();renderGenChips();renderJobGrid();initDeptSel();
 </script>
 </body>
 </html>
