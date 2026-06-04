@@ -137,6 +137,7 @@ select:focus{outline:none;border-color:var(--blue)}
 .offday{display:flex;gap:6px;flex-wrap:wrap}
 .offday button{padding:7px 14px;border-radius:20px;border:1px solid var(--g200);background:#fff;font-size:13px;font-family:'Noto Sans KR';color:var(--g600);cursor:pointer;font-weight:500}
 .offday button.on{background:var(--red);color:#fff;border-color:var(--red)}
+#campusSel button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 
 /* TIMETABLE */
 .tt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -253,22 +254,30 @@ select:focus{outline:none;border-color:var(--blue)}
   <!-- STEP 3 -->
   <section class="panel" id="p2">
     <h2 class="title">직무 맞춤 시간표 추천</h2>
-    <p class="sub">2026-1학기 실제 개설강좌 기준. 직무·공강 요일을 반영해 시간이 겹치지 않는 시간표를 자동 완성합니다.</p>
+    <p class="sub">2026-1학기 실제 개설강좌 기준. 직무·공강·캠퍼스를 반영해 시간이 겹치지 않는 시간표를 자동 완성합니다.</p>
     <div class="card">
-      <div class="card-h">🎯 목표 직무</div>
-      <div class="job-grid" id="jobGrid"></div>
+      <div class="card-h">🎯 목표 직무 <span class="cnt" id="jobPick">분야 → 세부직무</span></div>
+      <div id="jobCatGrid" class="job-grid" style="margin-bottom:10px"></div>
+      <div id="jobSubWrap" style="display:none">
+        <div style="font-size:12px;font-weight:600;color:var(--g500);margin-bottom:8px" id="jobSubLabel"></div>
+        <div id="jobSubGrid" class="job-grid"></div>
+      </div>
     </div>
     <div class="card">
       <div class="card-h">🈳 공강 요일 <span class="cnt">비울 요일 선택</span></div>
       <div class="offday" id="offDays"></div>
     </div>
+    <div class="card">
+      <div class="card-h">📍 캠퍼스 <span class="cnt">선택 시 제외</span></div>
+      <div class="offday" id="campusSel"></div>
+    </div>
     <div class="toolbar" style="margin-bottom:12px">
       <label class="inc-toggle"><input type="checkbox" id="incGen" checked onchange="buildTimetable()">교양 포함</label>
       <button class="btn btn-ghost" style="padding:9px 14px;font-size:13px;margin-left:auto" onclick="buildTimetable()">↻ 다시 생성</button>
     </div>
-    <div id="ttResult"><div class="empty">위에서 목표 직무를 먼저 선택하세요.</div></div>
+    <div id="ttResult"><div class="empty">위에서 분야와 세부직무를 선택하세요.</div></div>
     <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(1)">← 진단으로</button></div>
-    <div class="note">ⓘ 시간표는 2026-1학기 전 학과 개설강좌를 활용합니다. 졸업 진단은 선택한 학과 교육과정 기준입니다. 같은 과목에 여러 분반이 있으면 공강·충돌을 피해 자동 배치합니다.</div>
+    <div class="note">ⓘ 시간표는 2026-1학기 전 학과 개설강좌를 활용합니다. 졸업 진단은 선택한 학과 교육과정 기준입니다. 같은 과목에 여러 분반이 있으면 공강·캠퍼스·충돌을 피해 자동 배치합니다.</div>
   </section>
 </div>
 
@@ -281,20 +290,23 @@ const PTIME=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17
 
 let curDept=D.dept_list[0];
 let taken=new Set();          // "M_name" / "G_name"
-let curStep=0,curJob=null;
+let curStep=0,curCat=null,curJob=null;
 let viewMode='card',sortMode='ga',searchTerm='',searching=false;
 let offDays=new Set();
+let offCampus=new Set();      // 제외할 캠퍼스
+const ALL_CAMPUS=['신관','천안','예산'];
 
 function deptData(){return D.depts_data[curDept]}
 
 /* ===== 자동 저장/불러오기 (브라우저 localStorage) ===== */
-const SKEY='planfit_beta_v4';
+const SKEY='planfit_beta_v5';
 function saveState(){
   try{
     localStorage.setItem(SKEY,JSON.stringify({
-      dept:curDept, taken:[...taken], off:[...offDays], job:curJob
+      dept:curDept, taken:[...taken], off:[...offDays],
+      cat:curCat, job:curJob, offcp:[...offCampus]
     }));
-  }catch(e){/* 저장 불가 환경 무시 */}
+  }catch(e){}
 }
 function loadState(){
   try{
@@ -304,17 +316,22 @@ function loadState(){
     if(s.dept&&D.depts_data[s.dept])curDept=s.dept;
     if(Array.isArray(s.taken))taken=new Set(s.taken);
     if(Array.isArray(s.off))offDays=new Set(s.off);
-    if(s.job&&D.jobs[s.job])curJob=s.job;
+    if(Array.isArray(s.offcp))offCampus=new Set(s.offcp);
+    if(s.cat&&D.jobcats[s.cat])curCat=s.cat;
+    if(s.job&&curCat&&D.jobcats[curCat].jobs[s.job])curJob=s.job;
     return true;
   }catch(e){return false}
 }
 function resetAll(){
-  if(!confirm('선택한 과목·공강·직무를 모두 초기화할까요?'))return;
-  taken=new Set();offDays=new Set();curJob=null;
+  if(!confirm('선택한 과목·공강·캠퍼스·직무를 모두 초기화할까요?'))return;
+  taken=new Set();offDays=new Set();offCampus=new Set();curCat=null;curJob=null;
   try{localStorage.removeItem(SKEY)}catch(e){}
   document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('sel'));
   document.querySelectorAll('.offday button').forEach(b=>b.classList.remove('on'));
-  document.getElementById('ttResult').innerHTML=`<div class="empty">위에서 목표 직무를 먼저 선택하세요.</div>`;
+  document.getElementById('ttResult').innerHTML=`<div class="empty">위에서 분야와 세부직무를 선택하세요.</div>`;
+  document.querySelectorAll('#campusSel button').forEach(b=>b.classList.remove('on'));
+  document.getElementById('jobSubWrap').style.display='none';
+  document.getElementById('jobPick').textContent='분야 → 세부직무';
   renderCourses();
 }
 
@@ -331,13 +348,36 @@ function matchQ(o){
 function initSelects(){
   document.getElementById('deptSel').innerHTML=D.dept_list.map(d=>`<option value="${d}"${d===curDept?' selected':''}>${d}</option>`).join('');
   document.getElementById('offDays').innerHTML=DAYS.map(d=>`<button data-d="${d}" onclick="toggleOff('${d}')">${DAY_KR[d]}</button>`).join('');
-  document.getElementById('jobGrid').innerHTML=Object.entries(D.jobs).map(([n,i])=>`<div class="job-card" data-job="${n}" onclick="selectJob('${n}')"><div class="job-name">${n}</div><div class="job-desc">${i.desc}</div></div>`).join('');
+  // 캠퍼스 칩
+  document.getElementById('campusSel').innerHTML=ALL_CAMPUS.map(cp=>`<button data-cp="${cp}" onclick="toggleCampus('${cp}')">${cp}</button>`).join('');
+  // 직무 대분류 카드
+  document.getElementById('jobCatGrid').innerHTML=Object.entries(D.jobcats).map(([cat,v])=>`<div class="job-card" data-cat="${cat}" onclick="selectCat('${cat}')"><div class="job-name">${v.icon} ${cat}</div><div class="job-desc">${Object.keys(v.jobs).length}개 세부직무</div></div>`).join('');
+}
+// 대분류 선택 → 세부직무 표시
+function selectCat(cat){
+  curCat=cat; curJob=null;
+  document.querySelectorAll('#jobCatGrid .job-card').forEach(c=>c.classList.toggle('sel',c.dataset.cat===cat));
+  const jobs=D.jobcats[cat].jobs;
+  document.getElementById('jobSubLabel').textContent=`${D.jobcats[cat].icon} ${cat} — 세부직무 선택`;
+  document.getElementById('jobSubGrid').innerHTML=Object.keys(jobs).map(j=>`<div class="job-card" data-job="${j}" onclick="selectJob('${j}')"><div class="job-name">${j}</div></div>`).join('');
+  document.getElementById('jobSubWrap').style.display='block';
+  document.getElementById('jobPick').textContent=cat+' → ?';
+  saveState();
+}
+function selectJob(j){
+  curJob=j;
+  document.querySelectorAll('#jobSubGrid .job-card').forEach(c=>c.classList.toggle('sel',c.dataset.job===j));
+  document.getElementById('jobPick').textContent=curCat+' › '+j;
+  saveState();buildTimetable();
+}
+function toggleCampus(cp){
+  if(offCampus.has(cp))offCampus.delete(cp);else offCampus.add(cp);
+  document.querySelector(`[data-cp="${cp}"]`).classList.toggle('on',offCampus.has(cp));
+  saveState();buildTimetable();
 }
 function onDeptChange(){
   curDept=document.getElementById('deptSel').value;
   taken=new Set();
-  curJob=null;
-  document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('sel'));
   saveState();
   renderCourses();updateMeta();
 }
@@ -485,7 +525,6 @@ function renderDiag(){
 function pbar(name,cur,max,color){const pct=Math.min(100,Math.round(cur/max*100)),done=cur>=max;return `<div class="prog-item"><div class="prog-top"><span class="prog-name">${name}</span><span class="prog-val" style="color:${done?'var(--green)':'var(--g700)'}">${cur} / ${max}${done?' ✓':''}</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${done?'var(--green)':color}"></div></div></div>`}
 
 /* ===== timetable ===== */
-function selectJob(j){curJob=j;document.querySelectorAll('.job-card').forEach(c=>c.classList.toggle('sel',c.dataset.job===j));saveState();buildTimetable()}
 function toggleOff(d){if(offDays.has(d))offDays.delete(d);else offDays.add(d);document.querySelector(`[data-d="${d}"]`).classList.toggle('on',offDays.has(d));saveState();buildTimetable()}
 // core(핵심)=3점, rel(관련)=1점. 매칭된 키워드 목록도 반환
 function jobMatch(name,job){
@@ -498,8 +537,8 @@ function jobMatch(name,job){
 function cSlots(c){const k=[];c.t.forEach(([d,ps])=>ps.forEach(p=>k.push(d+'-'+p)));return k}
 
 function buildTimetable(){
-  if(!curJob){document.getElementById('ttResult').innerHTML=`<div class="empty">위에서 목표 직무를 먼저 선택하세요.</div>`;return}
-  const job=D.jobs[curJob];
+  if(!curCat||!curJob){document.getElementById('ttResult').innerHTML=`<div class="empty">위에서 분야와 세부직무를 선택하세요.</div>`;return}
+  const job=D.jobcats[curCat].jobs[curJob];
   const incGen=document.getElementById('incGen').checked;
   const takenNames=new Set([...taken].map(id=>id.slice(2)));
   const myMajor=new Set(deptData().major.map(m=>m.name));
@@ -507,6 +546,8 @@ function buildTimetable(){
 
   let cand=D.sched.filter(s=>s.t&&s.t.length&&!takenNames.has(s.n));
   cand=cand.filter(s=>!s.t.some(([day])=>offDays.has(day)));
+  // 캠퍼스 제외 필터 (선택된 캠퍼스가 있으면 그 캠퍼스 강의는 빼기)
+  if(offCampus.size)cand=cand.filter(s=>!(s.cp&&offCampus.has(s.cp)));
   cand=cand.map(s=>{
     const m=jobMatch(s.n,job);
     let score=m.score*16;
@@ -672,9 +713,19 @@ function fillDemo(){
 /* init */
 loadState();                       // 저장된 선택 복원
 initSelects();
-// 복원된 공강/직무를 UI에 반영
+// 복원된 공강/캠퍼스/직무를 UI에 반영
 offDays.forEach(d=>{const b=document.querySelector(`[data-d="${d}"]`);if(b)b.classList.add('on')});
-if(curJob){const jc=document.querySelector(`[data-job="${curJob}"]`);if(jc)jc.classList.add('sel')}
+offCampus.forEach(cp=>{const b=document.querySelector(`[data-cp="${cp}"]`);if(b)b.classList.add('on')});
+if(curCat){
+  // 대분류 복원 → 세부직무 그리드 펼치기
+  const cc=document.querySelector(`#jobCatGrid [data-cat="${curCat}"]`);if(cc)cc.classList.add('sel');
+  const jobs=D.jobcats[curCat].jobs;
+  document.getElementById('jobSubLabel').textContent=`${D.jobcats[curCat].icon} ${curCat} — 세부직무 선택`;
+  document.getElementById('jobSubGrid').innerHTML=Object.keys(jobs).map(j=>`<div class="job-card" data-job="${j}" onclick="selectJob('${j}')"><div class="job-name">${j}</div></div>`).join('');
+  document.getElementById('jobSubWrap').style.display='block';
+  if(curJob){const jc=document.querySelector(`#jobSubGrid [data-job="${curJob}"]`);if(jc)jc.classList.add('sel');document.getElementById('jobPick').textContent=curCat+' › '+curJob}
+  else document.getElementById('jobPick').textContent=curCat+' → ?';
+}
 updateMeta();renderCourses();
 </script>
 </body>
