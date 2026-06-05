@@ -138,6 +138,7 @@ select:focus{outline:none;border-color:var(--blue)}
 .offday button{padding:7px 14px;border-radius:20px;border:1px solid var(--g200);background:#fff;font-size:13px;font-family:'Noto Sans KR';color:var(--g600);cursor:pointer;font-weight:500}
 .offday button.on{background:var(--red);color:#fff;border-color:var(--red)}
 #campusSel button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+#gradeChips button.on{background:var(--green);color:#fff;border-color:var(--green)}
 
 /* TIMETABLE */
 .tt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -264,11 +265,15 @@ select:focus{outline:none;border-color:var(--blue)}
       </div>
     </div>
     <div class="card">
+      <div class="card-h">🎓 내 학년 <span class="cnt">들을 수 있는 과목 기준</span></div>
+      <div class="offday" id="gradeChips"></div>
+    </div>
+    <div class="card">
       <div class="card-h">🈳 공강 요일 <span class="cnt">비울 요일 선택</span></div>
       <div class="offday" id="offDays"></div>
     </div>
     <div class="card">
-      <div class="card-h">📍 캠퍼스 <span class="cnt">선택 시 제외</span></div>
+      <div class="card-h">📍 캠퍼스 <span class="cnt">선택한 곳만 보기</span></div>
       <div class="offday" id="campusSel"></div>
     </div>
     <div class="toolbar" style="margin-bottom:12px">
@@ -293,7 +298,8 @@ let taken=new Set();          // "M_name" / "G_name"
 let curStep=0,curCat=null,curJob=null;
 let viewMode='card',sortMode='ga',searchTerm='',searching=false;
 let offDays=new Set();
-let offCampus=new Set();      // 제외할 캠퍼스
+let onlyCampus=new Set();     // 선택한 캠퍼스만 보기 (비어있으면 전체)
+let myGrade=0;                // 내 학년 (0=미선택, 1~4)
 const ALL_CAMPUS=['신관','천안','예산'];
 
 function deptData(){return D.depts_data[curDept]}
@@ -304,7 +310,7 @@ function saveState(){
   try{
     localStorage.setItem(SKEY,JSON.stringify({
       dept:curDept, taken:[...taken], off:[...offDays],
-      cat:curCat, job:curJob, offcp:[...offCampus]
+      cat:curCat, job:curJob, oncp:[...onlyCampus], grade:myGrade
     }));
   }catch(e){}
 }
@@ -316,7 +322,8 @@ function loadState(){
     if(s.dept&&D.depts_data[s.dept])curDept=s.dept;
     if(Array.isArray(s.taken))taken=new Set(s.taken);
     if(Array.isArray(s.off))offDays=new Set(s.off);
-    if(Array.isArray(s.offcp))offCampus=new Set(s.offcp);
+    if(Array.isArray(s.oncp))onlyCampus=new Set(s.oncp);
+    if(typeof s.grade==='number')myGrade=s.grade;
     if(s.cat&&D.jobcats[s.cat])curCat=s.cat;
     if(s.job&&curCat&&D.jobcats[curCat].jobs[s.job])curJob=s.job;
     return true;
@@ -324,7 +331,7 @@ function loadState(){
 }
 function resetAll(){
   if(!confirm('선택한 과목·공강·캠퍼스·직무를 모두 초기화할까요?'))return;
-  taken=new Set();offDays=new Set();offCampus=new Set();curCat=null;curJob=null;
+  taken=new Set();offDays=new Set();onlyCampus=new Set();myGrade=0;curCat=null;curJob=null;
   try{localStorage.removeItem(SKEY)}catch(e){}
   document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('sel'));
   document.querySelectorAll('.offday button').forEach(b=>b.classList.remove('on'));
@@ -350,6 +357,8 @@ function initSelects(){
   document.getElementById('offDays').innerHTML=DAYS.map(d=>`<button data-d="${d}" onclick="toggleOff('${d}')">${DAY_KR[d]}</button>`).join('');
   // 캠퍼스 칩
   document.getElementById('campusSel').innerHTML=ALL_CAMPUS.map(cp=>`<button data-cp="${cp}" onclick="toggleCampus('${cp}')">${cp}</button>`).join('');
+  // 내 학년 칩 (단일 선택)
+  document.getElementById('gradeChips').innerHTML=[1,2,3,4].map(g=>`<button data-g="${g}" onclick="setGrade(${g})">${g}학년</button>`).join('');
   // 직무 대분류 카드
   document.getElementById('jobCatGrid').innerHTML=Object.entries(D.jobcats).map(([cat,v])=>`<div class="job-card" data-cat="${cat}" onclick="selectCat('${cat}')"><div class="job-name">${v.icon} ${cat}</div><div class="job-desc">${Object.keys(v.jobs).length}개 세부직무</div></div>`).join('');
 }
@@ -371,8 +380,13 @@ function selectJob(j){
   saveState();buildTimetable();
 }
 function toggleCampus(cp){
-  if(offCampus.has(cp))offCampus.delete(cp);else offCampus.add(cp);
-  document.querySelector(`[data-cp="${cp}"]`).classList.toggle('on',offCampus.has(cp));
+  if(onlyCampus.has(cp))onlyCampus.delete(cp);else onlyCampus.add(cp);
+  document.querySelector(`[data-cp="${cp}"]`).classList.toggle('on',onlyCampus.has(cp));
+  saveState();buildTimetable();
+}
+function setGrade(g){
+  myGrade=(myGrade===g)?0:g;  // 같은 학년 다시 누르면 해제
+  document.querySelectorAll('#gradeChips button').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.g)===myGrade));
   saveState();buildTimetable();
 }
 function onDeptChange(){
@@ -546,19 +560,38 @@ function buildTimetable(){
 
   let cand=D.sched.filter(s=>s.t&&s.t.length&&!takenNames.has(s.n));
   cand=cand.filter(s=>!s.t.some(([day])=>offDays.has(day)));
-  // 캠퍼스 제외 필터 (선택된 캠퍼스가 있으면 그 캠퍼스 강의는 빼기)
-  if(offCampus.size)cand=cand.filter(s=>!(s.cp&&offCampus.has(s.cp)));
+  // 캠퍼스 필터 (선택한 캠퍼스만 보기 — 비어있으면 전체)
+  if(onlyCampus.size)cand=cand.filter(s=>s.cp&&onlyCampus.has(s.cp));
+
+  // 내 학과 과목: 코드→과목정보 맵 (학년·정확매칭용)
+  const codeMap={}, nameYear={};
+  deptData().major.forEach(m=>{ if(m.code)codeMap[m.code]=m; if(m.year)nameYear[m.name]=m.year; });
+  // 인사대 건물 판별 (인문/신관 계열)
+  const isInsaBldg=r=>r&&(r.startsWith('인문')||r.startsWith('신관'));
+
   cand=cand.map(s=>{
     const m=jobMatch(s.n,job);
     let score=m.score*16;
-    if(s.k==='major'&&myMajor.has(s.n))score+=55;
+    // 내 학과 전공 여부: 과목코드 우선, 없으면 과목명
+    const byCode=s.cd&&codeMap[s.cd];
+    const isMine=byCode||myMajor.has(s.n);
+    if(s.k==='major'&&isMine)score+=55;
     else if(s.k==='major')score-=35;
+    // 같은 과목명의 여러 분반 중 내 학과 코드와 일치하면 강하게 우대 (창의적종합설계 등)
+    if(byCode)score+=40;
+    // 인사대 건물 우대 / 타 단대 건물 감점 (코드 매칭 안 된 전공일 때 분반 선택 보정)
+    if(s.k==='major'&&!byCode){ if(isInsaBldg(s.r))score+=8; else if(s.r)score-=12; }
     if(s.i==='전공필수')score+=18;
     if(s.i==='교양필수')score+=22;
     if(s.k==='gen'){if(!incGen)score-=999;else score+=4}
     if(myReq.has(s.n))score+=60;
-    return {...s,score,_gen:s.k==='gen',_hits:m.hits};
-  }).filter(s=>s.score>-100).sort((a,b)=>b.score-a.score);
+    // 학년 제약: 내 학년보다 높은 학년 과목은 제외 (낮은 학년은 허용)
+    let courseYear=0;
+    if(byCode)courseYear=byCode.year||0;
+    else if(nameYear[s.n])courseYear=nameYear[s.n];
+    const tooHigh = myGrade>0 && courseYear>myGrade;
+    return {...s,score,_gen:s.k==='gen',_hits:m.hits,_year:courseYear,_tooHigh:tooHigh};
+  }).filter(s=>s.score>-100 && !s._tooHigh).sort((a,b)=>b.score-a.score);
 
   const occ=new Set(),placed=[],used=new Set();let cr=0;
   for(const c of cand){
@@ -651,7 +684,10 @@ function renderTT(placed,cr,cand,used){
     runs.forEach(([s,e])=>{cellMap[day+'-'+s]={c,span:e-s+1};for(let p=s;p<=e;p++)if(p!==s)coverSet.add(day+'-'+p)});
   }));
 
-  let h=`<div class="card"><div class="card-h">📅 ${curJob} 추천 시간표 <span class="cnt">총 ${cr}학점 · ${placed.length}과목</span></div><div class="tt-wrap"><table class="timetable"><thead><tr><th class="th-time"></th>`;
+  let h='';
+  if(!myGrade)h+=`<div class="note" style="margin-bottom:12px;margin-top:0">💡 위에서 <b>내 학년</b>을 선택하면, 들을 수 있는 학년의 과목만 추천해요. (낮은 학년 과목은 포함, 높은 학년은 제외)</div>`;
+  else h+=`<div class="note" style="margin-bottom:12px;margin-top:0;color:var(--green);background:var(--green-l)">✓ <b>${myGrade}학년</b> 기준 — ${myGrade}학년 이하 과목만 추천했어요.</div>`;
+  h+=`<div class="card"><div class="card-h">📅 ${curJob} 추천 시간표 <span class="cnt">총 ${cr}학점 · ${placed.length}과목</span></div><div class="tt-wrap"><table class="timetable"><thead><tr><th class="th-time"></th>`;
   activeDays.forEach(d=>h+=`<th>${DAY_KR[d]}</th>`);
   offDays.size?h+=DAYS.filter(d=>offDays.has(d)).map(d=>`<th style="color:var(--red)">${DAY_KR[d]}<br><span style="font-size:9px;font-weight:400">공강</span></th>`).join(''):'';
   h+=`</tr></thead><tbody>`;
@@ -687,7 +723,7 @@ function renderTT(placed,cr,cand,used){
     else if(c._hits&&c._hits.length)why=`${curJob} 키워드: ${c._hits.slice(0,3).join(', ')}`;
     else if(!c._gen)why=`${curDept} 전공`;
     else why=`교양 추천`;
-    h+=`<div class="rec-item"><div class="rec-rank" style="background:${c._color}">${i+1}</div><div class="rec-info"><div class="rec-name">${c.n}${tag}${full}</div><div class="rec-meta">${c.i} · ${c.c}학점 · ${tstr}${c.r?' · '+c.r:''}${c.cp?' ('+c.cp+')':''}</div><div class="rec-meta" style="color:var(--blue)">↳ ${why}</div></div><div class="rec-score"><div class="rec-score-num" style="color:${c._color}">${Math.min(99,c.score)}%</div></div></div>`;
+    h+=`<div class="rec-item"><div class="rec-rank" style="background:${c._color}">${i+1}</div><div class="rec-info"><div class="rec-name">${c.n}${tag}${full}</div><div class="rec-meta">${c.i} · ${c.c}학점 · ${tstr}${c.r?' · '+c.r:''}${c.cp?' ('+c.cp+')':''}${c._year?' · 권장 '+c._year+'학년':''}</div><div class="rec-meta" style="color:var(--blue)">↳ ${why}</div></div><div class="rec-score"><div class="rec-score-num" style="color:${c._color}">${Math.min(99,c.score)}%</div></div></div>`;
   });
   h+=`</div></div>`;
   // plan B
@@ -715,7 +751,8 @@ loadState();                       // 저장된 선택 복원
 initSelects();
 // 복원된 공강/캠퍼스/직무를 UI에 반영
 offDays.forEach(d=>{const b=document.querySelector(`[data-d="${d}"]`);if(b)b.classList.add('on')});
-offCampus.forEach(cp=>{const b=document.querySelector(`[data-cp="${cp}"]`);if(b)b.classList.add('on')});
+onlyCampus.forEach(cp=>{const b=document.querySelector(`[data-cp="${cp}"]`);if(b)b.classList.add('on')});
+if(myGrade){const gb=document.querySelector(`#gradeChips button[data-g="${myGrade}"]`);if(gb)gb.classList.add('on')}
 if(curCat){
   // 대분류 복원 → 세부직무 그리드 펼치기
   const cc=document.querySelector(`#jobCatGrid [data-cat="${curCat}"]`);if(cc)cc.classList.add('sel');
